@@ -175,7 +175,7 @@ ui <- fluidPage(
         # hr(),
         # p("Created by", a(href="https://judgelord.github.io/", "Devin Judge-Lord"),
         #   HTML("&bull;"),
-          "Code on", a(href="https://github.com/judgelord/redistricting-lit/app.R", "Github"),
+          "Code on", a(href="https://github.com/judgelord/redistricting-lit/", "Github"),
         #  HTML("&bull;"), 
         #   "Follow me on",
         #   a(href="https://twitter.com/judgelord", "Twitter"),
