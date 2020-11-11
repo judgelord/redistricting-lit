@@ -11,20 +11,19 @@ library(fontawesome)
 # refresh data from google sheet if token is present
 if(gs4_has_token()){
     
-    ss <- googledrive::drive_get("redistricting vars") %>%
-        gs4_get()
+    dag <- googledrive::drive_get("redistricting vars") %>%
+        gs4_get() %>% 
+        read_sheet("DAG") 
     1
     1
-    
-    dag <- read_sheet(ss, "DAG") 
     
     write_csv(dag, "dag.csv")
-}
+} else { warning("Google sheets is not authorized, run lines 14-16 to get auth tokens if you want to update the data.")}
 
 # load data
 dag <- read.csv("dag.csv")
 
-
+    # all nodes 
     node <- c(dag$from,
               dag$to)
     
@@ -36,6 +35,7 @@ dag <- read.csv("dag.csv")
         add_count(id) %>% 
         filter(n == 1)
     
+    # all edges
     edges <- dag %>% transmute(
         from = from %>% str_remove(".* - "),
         to = to %>% str_remove(".* - "),
@@ -52,7 +52,7 @@ dag <- read.csv("dag.csv")
     degree_value <- degree(graph, mode = "in")
     nodes$icon.size <- degree_value[match(nodes$id, names(degree_value))] + 40
     
-    # add attributes
+    # node attributes
     nodes <- nodes %>% mutate(label = id, 
                               title = paste0("<p>", type, ": ", label,"</p>"),
                               # levels in case we want Hierarchical Layout
@@ -71,7 +71,7 @@ dag <- read.csv("dag.csv")
                               icon.face =  "'FontAwesome'",
                               icon.weight = "bold")
     
-    # format edges
+    # edge attributes
     edges <- edges %>% mutate(
         title = paste0("<p>", detail, "</p>"),
         #label = type,

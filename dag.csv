@@ -85,6 +85,6 @@ NA,effect - # of racial minority representatives,increases,effect - policy prefe
 NA,effect - policy preferred by racial minorities,increases,effect - material benefits for racial minorities,Griffin & Newman 2007,NA
 NA,NA,NA,NA,NA,NA
 NA,goal - incumbent safety,decreases,goal - partisan advantage,"Cain 1985, Wyrick 1991",NA
-NA,NA,NA,NA,NA,NA
+T,metric - compactness,decreases,effect - minority representation,Barabas & Jerit 2004,NA
 NA,NA,NA,NA,NA,NA
 NA,condition - proportion of minority voters (in a district),increases (outstanding question),effect - minority substantive representation,"Cameron et al. 1996, Shotts 2003, Handley et al. 1998, Bullock 1995, Overby & Cosgrove 1996, Sharpe & Garand 2001, Swain 1993, Overby & Cosgrove 1996, LeVeaux & Garand 2003",NOT SURE HOW TO THINK ABOUT THIS AT THE STATE LEVEL
