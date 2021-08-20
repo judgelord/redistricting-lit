@@ -7,7 +7,6 @@ library(igraph)
 library(googlesheets4)
 library(fontawesome)
 
-
 # refresh data from google sheet if token is present
 if(gs4_has_token()){
     
@@ -18,49 +17,64 @@ if(gs4_has_token()){
     1
     
     write_csv(dag, "dag.csv")
-} else { warning("Google sheets is not authorized, run lines 14-16 to get auth tokens if you want to update the data.")}
+    
+    node_attributes <-  googledrive::drive_get("redistricting vars") %>%
+        gs4_get() %>% 
+        read_sheet("DAG_node_attributes") 
+    
+    write_csv(node_attributes, "node_attributes.csv")
+    
+} else { warning("Google sheets is not authorized, run lines above to get auth tokens if you want to update the data.")}
 
 # load data
-dag <- read.csv("dag.csv")
+dag <- read.csv("dag.csv") %>% filter(cite_weight > 0)
+node_attributes <- read.csv("node_attributes.csv")
 
-    # all nodes 
-    node <- c(dag$from,
-              dag$to)
     
-    nodes <- tibble(id = node %>% str_remove(".* - "),
-                    type = node %>% str_remove(" - .*")) %>% 
-        filter(!is.na(id)) %>%
-        distinct() %>%
-        # removed nodes with multiple types
-        add_count(id) %>% 
-        filter(n == 1)
+    library(literature)
+
+    # now with node and edge attributes 
+    lit <- review(dag, 
+                  edge_attributes = c("edge",
+                                      "core",
+                                      "mechanism", 
+                                      "cites", 
+                                      "cites_empirical", 
+                                      "cite_weight", 
+                                      "cite_weight_empirical"), 
+                  node_attributes = node_attributes)
     
+
+
     # all edges
-    edges <- dag %>% transmute(
-        from = from %>% str_remove(".* - "),
-        to = to %>% str_remove(".* - "),
-        detail = paste(edge, mechanism, cites, sep = "<br>") %>% str_remove_all("NA"), 
-        type = edge
-    ) %>% 
-        filter(!is.na(from),!is.na(to)) %>% 
+    edges <- lit$edgelist %>% 
+        mutate(
+            detail = paste(edge, mechanism, cites, sep = "<br>") %>% str_remove_all("NA"),
+            type = edge,
+            title = paste0("<p>", detail, "</p>"),
+        #label = type,
+        color = ifelse(str_detect(type, "^increase"), "#81a275", "#617d9f"),
+        color = ifelse(str_detect(type, "^decrease"), "#b14552", color) ) %>%
         distinct()
+        
+    core <- edges %>% filter(core, !is.na(cites))
+    
+    cited <- edges %>% filter(cite_weight>0)
     
     
-    
-    # calculate betweeness in order to scale nodes
-    graph <- igraph::graph.data.frame(edges, directed = T)
-    degree_value <- degree(graph, mode = "in")
-    nodes$icon.size <- degree_value[match(nodes$id, names(degree_value))] + 40
-    
+   
     # node attributes
-    nodes <- nodes %>% mutate(label = id, 
-                              title = paste0("<p>", type, ": ", label,"</p>"),
+    nodes <- lit$nodelist %>% mutate(label = node, 
+                                     id = node,
+                                     # scale nodes by degree
+                                     icon.size = degree + 40,
+                              title = paste0("<p>", type, ": ", label,"</p>") %>% str_remove("NA:"),
                               # levels in case we want Hierarchical Layout
                               level = ifelse(type == "goal", 1:2, 3:4),
                               # FontAwesome.com shapes for fun
                               shape = "icon",
-                              icon.color = case_when(type =="goal" ~ "black",
-                                                     type !="goal" ~ "black"),
+                              icon.color = case_when(node %in% c(cited$to, cited$from) ~ "black",
+                                                     !node %in% c(cited$to, cited$from) ~ "grey"),
                               icon.code = case_when(type == "condition" ~ "f205", # chess board
                                                     type == "goal" ~ "f24e", # scale  "f05b", # crosshairs
                                                     type == "policy" ~ "f0e3", # gavel
@@ -71,15 +85,7 @@ dag <- read.csv("dag.csv")
                               icon.face =  "'FontAwesome'",
                               icon.weight = "bold")
     
-    # edge attributes
-    edges <- edges %>% mutate(
-        title = paste0("<p>", detail, "</p>"),
-        #label = type,
-        color = ifelse(str_detect(type, "^increase"), "#81a275", "#617d9f"),
-        color = ifelse(str_detect(type, "^decrease"), "#b14552", color) ) 
-    
 
-    
     # save datasets to call in Shiny
     save(nodes, file = "nodes.RData")
     save(edges, file = "edges.RData")
@@ -88,7 +94,7 @@ dag <- read.csv("dag.csv")
 
 # List of choices for selectInput
 node_choices <- as.list(1:length(nodes$id))
-names(node_choices) <- paste(nodes$type, nodes$id, sep = ": ")
+names(node_choices) <- paste(nodes$type, nodes$id, sep = ": ") %>% str_remove("NA:")
 
 selected <- slice_head(nodes, n = 8)
 
