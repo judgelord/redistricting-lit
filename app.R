@@ -8,6 +8,8 @@ library(googlesheets4)
 library(fontawesome)
 
     
+load("nodes.RData")
+load("edges.RData")
 
 # List of choices for selectInput
 node_choices <- as.list(1:length(nodes$id))
