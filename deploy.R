@@ -1,7 +1,10 @@
 # install.packages("rsconnect")
 library(rsconnect)
 
-# refresh
+# refresh from google sheet
+source("update.R")
+
+# build app
 source("app.R")
 rsconnect::deployApp()
 Y
