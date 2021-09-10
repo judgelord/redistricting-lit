@@ -13,12 +13,21 @@ load("edges.RData")
 
 # List of choices for selectInput
 node_choices <- as.list(1:length(nodes$id))
-names(node_choices) <- paste(nodes$type, nodes$id, sep = ": ") %>% str_remove("NA:")
+names(node_choices) <- paste(nodes$type, nodes$id, sep = ": ") %>% str_remove("NA: ")
 
-selected <- slice_head(nodes, n = 8)
+core <- edges %>% filter(core)
+
+cited <- edges %>% filter(cite_weight>0)
+
+# core <- cited
+
+selected <- nodes %>% filter(node %in% c(core$from, core$to) )
 
 nodes_selected <- as.list(1:length(selected$id))
-names(nodes_selected) <- paste(selected$type, selected$id, sep = ": ")
+names(nodes_selected) <- paste(selected$type, selected$id, sep = ": ") %>% str_remove("NA: ")
+
+#FIXME
+#nodes_selected <- node_choices
 
 edge_choices <- as.list(1:length(unique(edges$type)))
 names(edge_choices) <- unique(edges$type)
@@ -113,5 +122,3 @@ ui <- fluidPage(
 )
 
 shinyApp(ui = ui, server = server)
-
-
