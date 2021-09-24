@@ -8,7 +8,7 @@ change in constituency boundaries,condition
 communities preserved,goal
 community,value
 competitiveness,goal
-computers,metric
+computers,condition
 concentration of likely donors in map-drawing party's districts,effect
 constituent service,effect
 constitutional test,metric
@@ -101,3 +101,4 @@ voter information about their district,effect
 voter recall,effect
 voter sense of place,effect
 voter turnout,effect
+elite polarization,effect

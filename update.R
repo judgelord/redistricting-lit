@@ -1,3 +1,9 @@
+library(tidyr)
+library(dplyr)
+library(googlesheets4)
+library(googledrive)
+library(tidyverse)
+library(igraph)
 
 # refresh data from google sheet if token is present
 if(gs4_has_token()){
@@ -22,7 +28,7 @@ if(gs4_has_token()){
 dag <- read.csv("dag.csv") %>% filter(cite_weight > 0)
 node_attributes <- read.csv("node_attributes.csv")
 
-
+#devtools::install_github("judgelord/literature")
 library(literature)
 
 # now with node and edge attributes 
@@ -82,3 +88,6 @@ nodes <- lit$nodelist %>% mutate(label = node,
 save(nodes, file = "nodes.RData")
 save(edges, file = "edges.RData")
 
+
+
+#TODO add static dag

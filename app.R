@@ -7,9 +7,8 @@ library(igraph)
 library(googlesheets4)
 library(fontawesome)
 
-    
-load("nodes.RData")
-load("edges.RData")
+load(here::here("data", "edges.Rdata") %>% str_replace("-lit", "-NetLit"))
+load(here::here("data", "nodes.Rdata") %>% str_replace("-lit", "-NetLit"))
 
 # List of choices for selectInput
 node_choices <- as.list(1:length(nodes$id))

@@ -1,8 +1,11 @@
+#FIXME - maybe this should pull data from literature NetLit 
+
 # install.packages("rsconnect")
 library(rsconnect)
 
 # refresh from google sheet
-source("update.R")
+# NOTE THIS IS NOW DONE IN THE redistricting-NetLit
+# source("update.R")
 
 # build app
 source("app.R")
